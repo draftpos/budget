@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Insurance Budget Form View -->
+    <record id="view_insurance_budget_form" model="ir.ui.view">
+        <field name="name">insurance.budget.form</field>
+        <field name="model">insurance.budget</field>
+        <field name="arch" type="xml">
+            <form string="Insurance Budget">
+                <header>
+                    <button name="action_prefill_pnl_accounts" string="Prefill P&amp;L Accounts" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_confirm" string="Confirm" type="object" class="btn-success" invisible="state != 'draft'"/>
+                    <button name="action_draft" string="Reset to Draft" type="object" invisible="state == 'draft'"/>
+                    <button name="action_cancel" string="Cancel" type="object" invisible="state == 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. 2026 Annual Budget"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="analytic_distribution" widget="analytic_distribution" groups="analytic.group_analytic_accounting" options="{'force_applicability': 'optional'}"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Budget Items" name="lines">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="account_id"/>
+                                    <field name="analytic_distribution" widget="analytic_distribution" groups="analytic.group_analytic_accounting" options="{'force_applicability': 'optional'}" optional="show"/>
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="planned_amount" widget="monetary" sum="Total Planned"/>
+                                    <field name="comment"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Insurance Budget List View -->
+    <record id="view_insurance_budget_tree" model="ir.ui.view">
+        <field name="name">insurance.budget.tree</field>
+        <field name="model">insurance.budget</field>
+        <field name="arch" type="xml">
+            <list string="Insurance Budgets">
+                <field name="name"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'confirm'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action for Insurance Budget -->
+    <record id="action_insurance_budget" model="ir.actions.act_window">
+        <field name="name">Budgets</field>
+        <field name="res_model">insurance.budget</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Insurance Budget!
+            </p>
+            <p>
+                Click 'Prefill P&amp;L Accounts' to automatically load all profit &amp; loss ledger accounts into the budget.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item under Accounting -> Reporting -->
+    <menuitem id="menu_insurance_budget"
+              name="Budgets"
+              parent="account.menu_finance_reports"
+              action="action_insurance_budget"
+              sequence="25"/>
+</odoo>

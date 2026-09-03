@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_insurance_budget_user,insurance.budget.user,model_insurance_budget,account.group_account_user,1,1,1,1
+access_insurance_budget_line_user,insurance.budget.line.user,model_insurance_budget_line,account.group_account_user,1,1,1,1
