@@ -8,6 +8,7 @@
     "depends": [
         "base",
         "account",
+        "analytic",
         "account_reports",
         "insurance_profit_and_loss",
     ],
