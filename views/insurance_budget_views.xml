@@ -26,7 +26,7 @@
                             <field name="date_to"/>
                         </group>
                         <group>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
                             <field name="currency_id" invisible="1"/>
                         </group>
                     </group>
@@ -34,7 +34,8 @@
                         <page string="Budget Items" name="lines">
                             <field name="line_ids">
                                 <list editable="bottom">
-                                    <field name="account_id"/>
+                                    <field name="company_id" column_invisible="True"/>
+                                    <field name="account_id" domain="[('company_id', '=', parent.company_id), ('account_type', 'in', ('income', 'income_other', 'expense', 'expense_depreciation', 'expense_direct_cost', 'expense_other'))]" options="{'no_create': True}"/>
                                     <field name="analytic_distribution" widget="analytic_distribution" groups="analytic.group_analytic_accounting" options="{'force_applicability': 'optional'}" optional="show"/>
                                     <field name="date_from"/>
                                     <field name="date_to"/>
@@ -65,17 +66,38 @@
         </field>
     </record>
 
+    <!-- Insurance Budget Search View -->
+    <record id="view_insurance_budget_search" model="ir.ui.view">
+        <field name="name">insurance.budget.search</field>
+        <field name="model">insurance.budget</field>
+        <field name="arch" type="xml">
+            <search string="Search Budgets">
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmed" name="confirm" domain="[('state', '=', 'confirm')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Company" name="group_by_company" domain="[]" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                    <filter string="Status" name="group_by_status" domain="[]" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <!-- Action for Insurance Budget -->
     <record id="action_insurance_budget" model="ir.actions.act_window">
         <field name="name">Budgets</field>
         <field name="res_model">insurance.budget</field>
         <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_insurance_budget_search"/>
+        <field name="domain">[('company_id', 'in', allowed_company_ids)]</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create your first Insurance Budget!
             </p>
             <p>
-                Click 'Prefill P&amp;L Accounts' to automatically load all profit &amp; loss ledger accounts into the budget.
+                Click 'Prefill P&amp;L Accounts' to automatically load all profit &amp; loss ledger accounts for the active company into the budget.
             </p>
         </field>
     </record>

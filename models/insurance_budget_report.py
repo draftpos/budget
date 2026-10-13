@@ -64,10 +64,17 @@ class InsuranceManagementReportHandler(models.AbstractModel):
             # Handle leap year Feb 29
             py_date_to = report_date_to.replace(year=report_date_to.year - 1, day=28)
         
-        # Determine company context
-        if hasattr(report, '_get_report_company_ids'):
+        # Determine company context strictly from report options or environment
+        if hasattr(report, 'get_report_company_ids'):
+            company_ids = report.get_report_company_ids(options)
+        elif hasattr(report, '_get_report_company_ids'):
             company_ids = report._get_report_company_ids(options)
+        elif options.get('companies'):
+            company_ids = [c['id'] for c in options['companies']]
         else:
+            company_ids = self.env.companies.ids
+
+        if not company_ids:
             company_ids = [self.env.company.id]
         
         def _get_overlap_days(d1_from, d1_to, d2_from, d2_to):
@@ -77,7 +84,7 @@ class InsuranceManagementReportHandler(models.AbstractModel):
                 return (overlap_to - overlap_from).days + 1
             return 0
 
-        # 1. Fetch confirmed budget lines overlapping with YTD (which includes the current month)
+        # 1. Fetch confirmed budget lines overlapping with YTD (strictly filtered by company_ids)
         b_domain = [
             ('budget_id.state', '=', 'confirm'),
             ('company_id', 'in', company_ids),
@@ -107,9 +114,9 @@ class InsuranceManagementReportHandler(models.AbstractModel):
             if y_days > 0:
                 acc_ytd_budget[acc_id] = acc_ytd_budget.get(acc_id, 0.0) + (daily * y_days)
 
-        # 2. Map accounts to report line codes
+        # 2. Map accounts to report line codes (strictly filtered by company_ids)
         account_to_report_line = {}
-        all_accounts = self.env['account.account'].search([])
+        all_accounts = self.env['account.account'].search([('company_id', 'in', company_ids)])
         for acc in all_accounts:
             if acc.insurance_report_category in ('management_fees_general', 'management_fees_managed'):
                 account_to_report_line[acc.id] = 'INS_MGMT_OTH_OP'

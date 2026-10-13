@@ -7,9 +7,17 @@ class InsuranceBudget(models.Model):
     _description = 'Insurance Annual / Monthly Budget'
     _inherit = ['analytic.mixin']
     _order = 'date_from desc, id desc'
+    _check_company_auto = True
 
     name = fields.Char(string="Budget Name", required=True, default=lambda self: _("%s Annual Budget") % date.today().year)
-    company_id = fields.Many2one('res.company', string="Company", required=True, default=lambda self: self.env.company)
+    company_id = fields.Many2one(
+        'res.company', 
+        string="Company", 
+        required=True, 
+        default=lambda self: self.env.company,
+        check_company=True,
+        index=True
+    )
     currency_id = fields.Many2one(related='company_id.currency_id', string="Currency")
     date_from = fields.Date(string="Start Date", required=True, default=lambda self: date(date.today().year, 1, 1))
     date_to = fields.Date(string="End Date", required=True, default=lambda self: date(date.today().year, 12, 31))
@@ -31,12 +39,13 @@ class InsuranceBudget(models.Model):
         self.write({'state': 'cancel'})
 
     def action_prefill_pnl_accounts(self):
-        """Prefills budget lines with all P&L accounts (Income, Expense, Direct Cost)"""
+        """Prefills budget lines with all P&L accounts (Income, Expense, Direct Cost) strictly for the budget's company"""
         self.ensure_one()
         Account = self.env['account.account']
         
-        # Search all Income and Expense accounts
+        # Search all Income and Expense accounts for this budget's company
         pnl_accounts = Account.search([
+            ('company_id', '=', self.company_id.id),
             ('account_type', 'in', (
                 'income', 'income_other', 
                 'expense', 'expense_depreciation', 'expense_direct_cost', 'expense_other'
@@ -66,15 +75,17 @@ class InsuranceBudgetLine(models.Model):
     _description = 'Insurance Budget Line'
     _inherit = ['analytic.mixin']
     _order = 'account_id asc, date_from asc'
+    _check_company_auto = True
 
-    budget_id = fields.Many2one('insurance.budget', string="Budget", required=True, ondelete='cascade')
-    company_id = fields.Many2one(related='budget_id.company_id', store=True)
+    budget_id = fields.Many2one('insurance.budget', string="Budget", required=True, ondelete='cascade', check_company=True)
+    company_id = fields.Many2one('res.company', string="Company", related='budget_id.company_id', store=True, readonly=True, index=True)
     currency_id = fields.Many2one(related='budget_id.currency_id')
     account_id = fields.Many2one(
         'account.account', 
         string="Account", 
         required=True,
-        domain="[('account_type', 'in', ('income', 'income_other', 'expense', 'expense_depreciation', 'expense_direct_cost', 'expense_other'))]"
+        domain="[('company_id', '=', company_id), ('account_type', 'in', ('income', 'income_other', 'expense', 'expense_depreciation', 'expense_direct_cost', 'expense_other'))]",
+        check_company=True
     )
     date_from = fields.Date(string="Start Date", required=True)
     date_to = fields.Date(string="End Date", required=True)

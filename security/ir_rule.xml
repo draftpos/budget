@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="insurance_budget_comp_rule" model="ir.rule">
+        <field name="name">Insurance Budget Multi-Company</field>
+        <field name="model_id" ref="model_insurance_budget"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="insurance_budget_line_comp_rule" model="ir.rule">
+        <field name="name">Insurance Budget Line Multi-Company</field>
+        <field name="model_id" ref="model_insurance_budget_line"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>
