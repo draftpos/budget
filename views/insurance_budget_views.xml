@@ -77,10 +77,8 @@
                 <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
                 <filter string="Confirmed" name="confirm" domain="[('state', '=', 'confirm')]"/>
                 <separator/>
-                <group string="Group By">
-                    <filter string="Company" name="group_by_company" domain="[]" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
-                    <filter string="Status" name="group_by_status" domain="[]" context="{'group_by': 'state'}"/>
-                </group>
+                <filter string="Company" name="group_by_company" domain="[]" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                <filter string="Status" name="group_by_status" domain="[]" context="{'group_by': 'state'}"/>
             </search>
         </field>
     </record>
