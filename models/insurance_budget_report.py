@@ -116,7 +116,7 @@ class InsuranceManagementReportHandler(models.AbstractModel):
 
         # 2. Map accounts to report line codes (strictly filtered by company_ids)
         account_to_report_line = {}
-        all_accounts = self.env['account.account'].search([('company_id', 'in', company_ids)])
+        all_accounts = self.env['account.account'].search([('company_ids', 'in', company_ids)])
         for acc in all_accounts:
             if acc.insurance_report_category in ('management_fees_general', 'management_fees_managed'):
                 account_to_report_line[acc.id] = 'INS_MGMT_OTH_OP'
