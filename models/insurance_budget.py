@@ -44,7 +44,7 @@ class InsuranceBudget(models.Model):
         
         # Search all Income and Expense accounts for this budget's company
         pnl_accounts = Account.search([
-            ('company_id', '=', self.company_id.id),
+            ('company_ids', 'in', [self.company_id.id]),
             ('account_type', 'in', (
                 'income', 'income_other', 
                 'expense', 'expense_depreciation', 'expense_direct_cost', 'expense_other'
@@ -74,17 +74,15 @@ class InsuranceBudgetLine(models.Model):
     _description = 'Insurance Budget Line'
     _inherit = ['analytic.mixin']
     _order = 'account_id asc, date_from asc'
-    _check_company_auto = True
 
-    budget_id = fields.Many2one('insurance.budget', string="Budget", required=True, ondelete='cascade', check_company=True)
+    budget_id = fields.Many2one('insurance.budget', string="Budget", required=True, ondelete='cascade')
     company_id = fields.Many2one('res.company', string="Company", related='budget_id.company_id', store=True, readonly=True, index=True)
     currency_id = fields.Many2one(related='budget_id.currency_id')
     account_id = fields.Many2one(
         'account.account', 
         string="Account", 
         required=True,
-        domain="[('company_id', '=', company_id), ('account_type', 'in', ('income', 'income_other', 'expense', 'expense_depreciation', 'expense_direct_cost', 'expense_other'))]",
-        check_company=True
+        domain="[('company_ids', 'in', [company_id]), ('account_type', 'in', ('income', 'income_other', 'expense', 'expense_depreciation', 'expense_direct_cost', 'expense_other'))]"
     )
     date_from = fields.Date(string="Start Date", required=True)
     date_to = fields.Date(string="End Date", required=True)

@@ -35,7 +35,7 @@
                             <field name="line_ids">
                                 <list editable="bottom">
                                     <field name="company_id" column_invisible="True"/>
-                                    <field name="account_id" domain="[('company_id', '=', parent.company_id), ('account_type', 'in', ('income', 'income_other', 'expense', 'expense_depreciation', 'expense_direct_cost', 'expense_other'))]" options="{'no_create': True}"/>
+                                    <field name="account_id" domain="[('company_ids', 'in', [parent.company_id]), ('account_type', 'in', ('income', 'income_other', 'expense', 'expense_depreciation', 'expense_direct_cost', 'expense_other'))]" options="{'no_create': True}"/>
                                     <field name="analytic_distribution" widget="analytic_distribution" groups="analytic.group_analytic_accounting" options="{'force_applicability': 'optional'}" optional="show"/>
                                     <field name="date_from"/>
                                     <field name="date_to"/>
