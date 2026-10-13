@@ -15,7 +15,6 @@ class InsuranceBudget(models.Model):
         string="Company", 
         required=True, 
         default=lambda self: self.env.company,
-        check_company=True,
         index=True
     )
     currency_id = fields.Many2one(related='company_id.currency_id', string="Currency")
