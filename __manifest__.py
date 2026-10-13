@@ -3,8 +3,10 @@
     "version": "19.0.1.0.0",
     "category": "Accounting",
     "summary": "Standalone Budget Management and Management Accounts (Budget vs Actual) reporting",
-    "author": "Havano",
+    "author": "DraftPOS / Havano Solutions",
+    "website": "https://draftpos.com",
     "license": "LGPL-3",
+    "images": ["static/description/icon.png"],
     "depends": [
         "base",
         "account",
